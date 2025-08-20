@@ -6,7 +6,6 @@ import {
   MessageSquare, 
   Award, 
   MapPin, 
-  Sparkles,
   ArrowRight,
   Star
 } from 'lucide-react'
@@ -41,7 +40,11 @@ const LandingPage: React.FC = () => {
       <header className="relative z-10 px-6 py-4">
         <nav className="flex items-center justify-between max-w-7xl mx-auto">
           <div className="flex items-center space-x-2">
-            <Sparkles className="w-8 h-8 text-purple-400" />
+            <img 
+              src="https://cdn.chatandbuild.com/users/688cb35eab5dd7b7a88dd413/untitled-design-1755733152058-263322045.png" 
+              alt="PPMK Logo" 
+              className="w-8 h-8"
+            />
             <span className="text-2xl font-bold text-white">PPMK가자</span>
           </div>
           <div className="flex items-center space-x-4">
@@ -66,9 +69,9 @@ const LandingPage: React.FC = () => {
         <div className="max-w-7xl mx-auto text-center">
           <div className="mb-8">
             <img
-              src="https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=200&h=200&fit=crop&crop=face"
+              src="https://cdn.chatandbuild.com/users/688cb35eab5dd7b7a88dd413/untitled-design-1755733152058-263322045.png"
               alt="PPMK Logo"
-              className="w-24 h-24 rounded-full mx-auto mb-6 border-4 border-purple-400"
+              className="w-24 h-24 mx-auto mb-6"
             />
             <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">
               PPMK<span className="text-purple-400">가자</span>
@@ -209,7 +212,11 @@ const LandingPage: React.FC = () => {
       <footer className="px-6 py-12 bg-gray-900 border-t border-gray-800">
         <div className="max-w-7xl mx-auto text-center">
           <div className="flex items-center justify-center space-x-2 mb-4">
-            <Sparkles className="w-6 h-6 text-purple-400" />
+            <img 
+              src="https://cdn.chatandbuild.com/users/688cb35eab5dd7b7a88dd413/untitled-design-1755733152058-263322045.png" 
+              alt="PPMK Logo" 
+              className="w-6 h-6"
+            />
             <span className="text-xl font-bold text-white">PPMK가자</span>
           </div>
           <p className="text-gray-400 mb-4">

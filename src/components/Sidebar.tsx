@@ -8,7 +8,6 @@ import {
   Users, 
   TreePine,
   LogOut,
-  Sparkles,
   HelpCircle,
   Vote
 } from 'lucide-react'
@@ -38,7 +37,11 @@ const Sidebar: React.FC = () => {
     <div className="w-64 bg-gray-800 min-h-screen p-4 border-r border-gray-700 flex flex-col">
       <div className="mb-8">
         <div className="flex items-center space-x-2 mb-2">
-          <Sparkles className="w-8 h-8 text-purple-400" />
+          <img 
+            src="https://cdn.chatandbuild.com/users/688cb35eab5dd7b7a88dd413/untitled-design-1755733152058-263322045.png" 
+            alt="PPMK Logo" 
+            className="w-8 h-8"
+          />
           <h1 className="text-xl font-bold text-white">PPMK가자</h1>
         </div>
         <p className="text-gray-400 text-sm">Malaysian Students in Korea</p>
