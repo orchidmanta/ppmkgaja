@@ -60,7 +60,7 @@ function App() {
                 <BambooForestPage />
               </ProtectedRoute>
             } />
-            <Route path="/elections/*" element={
+            <Route path="/elections" element={
               <ProtectedRoute>
                 <ElectionsPage />
               </ProtectedRoute>

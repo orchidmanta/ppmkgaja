@@ -47,7 +47,7 @@ const Sidebar: React.FC = () => {
       <nav className="space-y-2 flex-1">
         {menuItems.map((item) => {
           const Icon = item.icon
-          const isActive = location.pathname.startsWith(item.path)
+          const isActive = location.pathname === item.path
           
           return (
             <Link
