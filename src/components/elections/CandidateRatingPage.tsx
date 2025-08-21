@@ -6,7 +6,8 @@ import {
   User, 
   Star, 
   BarChart3, 
-  Send 
+  Send,
+  MessageCircle 
 } from 'lucide-react'
 import { ElectionsProps, Rating } from './types'
 
@@ -16,6 +17,7 @@ const CandidateRatingPage: React.FC<ElectionsProps> = ({
   userRatings,
   currentRating,
   currentComment,
+  comments,
   setCurrentView,
   setSelectedCandidate,
   setCurrentComment,
@@ -26,6 +28,7 @@ const CandidateRatingPage: React.FC<ElectionsProps> = ({
   if (!selectedCandidate) return null
 
   const userRating = userRatings.find(r => r.candidateId === selectedCandidate.id)
+  const candidateComments = comments.filter(c => c.candidateId === selectedCandidate.id)
 
   const skillLabels = {
     communication: 'Communication',
@@ -127,41 +130,91 @@ const CandidateRatingPage: React.FC<ElectionsProps> = ({
 
         {/* Rating Section */}
         {!userRating ? (
-          <div>
-            <h2 className="text-2xl font-bold text-white mb-6">Rate This Candidate</h2>
-            <div className="bg-gray-700 rounded-lg p-6">
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-6">
-                {Object.entries(skillLabels).map(([skill, label]) => (
-                  <div key={skill} className="text-center">
-                    <p className="text-gray-300 mb-3 font-medium">{label}</p>
-                    {renderStarRating(
-                      currentRating[skill as keyof Rating],
-                      (value) => handleRatingChange(skill as keyof Rating, value)
-                    )}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Left Column - Rating Form */}
+            <div>
+              <h2 className="text-2xl font-bold text-white mb-6">Rate This Candidate</h2>
+              <div className="bg-gray-700 rounded-lg p-6">
+                {/* Vertical Rating Stack */}
+                <div className="space-y-6 mb-6">
+                  {Object.entries(skillLabels).map(([skill, label]) => (
+                    <div key={skill} className="flex items-center justify-between">
+                      <p className="text-gray-300 font-medium w-32">{label}</p>
+                      <div className="flex-1 flex justify-end">
+                        {renderStarRating(
+                          currentRating[skill as keyof Rating],
+                          (value) => handleRatingChange(skill as keyof Rating, value)
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mb-6">
+                  <label className="block text-gray-300 mb-3 font-medium">Public Comment (Optional)</label>
+                  <textarea
+                    value={currentComment}
+                    onChange={(e) => setCurrentComment(e.target.value)}
+                    placeholder="Share your thoughts about this candidate..."
+                    className="w-full px-4 py-3 bg-gray-600 border border-gray-500 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    rows={4}
+                  />
+                  <p className="text-gray-400 text-sm mt-2">Your comment will be public. Please be respectful and constructive.</p>
+                </div>
+
+                <button
+                  onClick={submitRating}
+                  disabled={!isRatingComplete()}
+                  className="flex items-center space-x-2 px-8 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                >
+                  <Send className="w-5 h-5" />
+                  <span>Submit Rating</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Right Column - Public Comments with Live Preview */}
+            <div>
+              <h3 className="text-xl font-bold text-white mb-4 flex items-center space-x-2">
+                <MessageCircle className="w-5 h-5" />
+                <span>Public Comments ({candidateComments.length + (currentComment.trim() ? 1 : 0)})</span>
+              </h3>
+              
+              <div className="space-y-4 max-h-96 overflow-y-auto">
+                {/* Live Preview of Current Comment */}
+                {currentComment.trim() && (
+                  <div className="bg-purple-900/30 border border-purple-500/50 rounded-lg p-4">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <span className="font-semibold text-purple-300">You</span>
+                      <span className="text-purple-400 text-sm">•</span>
+                      <span className="text-purple-400 text-sm">Preview</span>
+                      <span className="px-2 py-0.5 bg-purple-600 text-white text-xs rounded-full">New</span>
+                    </div>
+                    <p className="text-purple-100">{currentComment}</p>
                   </div>
-                ))}
-              </div>
+                )}
 
-              <div className="mb-6">
-                <label className="block text-gray-300 mb-3 font-medium">Public Comment (Optional)</label>
-                <textarea
-                  value={currentComment}
-                  onChange={(e) => setCurrentComment(e.target.value)}
-                  placeholder="Share your thoughts about this candidate..."
-                  className="w-full px-4 py-3 bg-gray-600 border border-gray-500 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  rows={4}
-                />
-                <p className="text-gray-400 text-sm mt-2">Your comment will be public. Please be respectful and constructive.</p>
+                {/* Existing Comments */}
+                {candidateComments.length > 0 ? (
+                  candidateComments.map((comment) => (
+                    <div key={comment.id} className="bg-gray-700 rounded-lg p-4">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <span className="font-semibold text-white">{comment.username}</span>
+                        <span className="text-gray-400 text-sm">•</span>
+                        <span className="text-gray-400 text-sm">{comment.timestamp}</span>
+                      </div>
+                      <p className="text-gray-300">{comment.comment}</p>
+                    </div>
+                  ))
+                ) : (
+                  !currentComment.trim() && (
+                    <div className="text-center py-8 text-gray-400">
+                      <MessageCircle className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                      <p>No comments yet. Be the first to share your thoughts!</p>
+                    </div>
+                  )
+                )}
               </div>
-
-              <button
-                onClick={submitRating}
-                disabled={!isRatingComplete()}
-                className="flex items-center space-x-2 px-8 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
-              >
-                <Send className="w-5 h-5" />
-                <span>Submit Rating</span>
-              </button>
             </div>
           </div>
         ) : (
