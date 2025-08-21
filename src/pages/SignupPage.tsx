@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Sparkles, Mail, Lock, User, GraduationCap, Calendar, ArrowRight } from 'lucide-react'
+import { Mail, Lock, User, GraduationCap, Calendar, ArrowRight } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 
 const SignupPage: React.FC = () => {
@@ -68,7 +68,11 @@ const SignupPage: React.FC = () => {
         <div className="bg-gray-800 rounded-2xl shadow-2xl p-8 border border-gray-700">
           <div className="text-center mb-8">
             <div className="flex items-center justify-center space-x-2 mb-4">
-              <Sparkles className="w-8 h-8 text-purple-400" />
+              <img 
+                src="https://cdn.chatandbuild.com/users/688cb35eab5dd7b7a88dd413/untitled-design-1755775977783-174088848.png" 
+                alt="PPMK Logo" 
+                className="w-8 h-8 object-contain"
+              />
               <h1 className="text-2xl font-bold text-white">PPMK가자</h1>
             </div>
             <h2 className="text-xl text-gray-300">Join Our Community! 🎉</h2>
