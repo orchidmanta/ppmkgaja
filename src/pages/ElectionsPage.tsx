@@ -19,11 +19,9 @@ import {
   TrendingUp,
   Brain,
   Zap,
-  Info,
-  Eye
+  Info
 } from 'lucide-react'
 import { computeNFA } from '../utils/nfa'
-import confetti from 'canvas-confetti'
 
 interface Badge {
   name: string
@@ -105,7 +103,7 @@ interface CandidateWithFinalScore extends Candidate {
 }
 
 const ElectionsPage: React.FC = () => {
-  const [currentView, setCurrentView] = useState<'home' | 'position' | 'candidate-profile' | 'candidate-rating'>('home')
+  const [currentView, setCurrentView] = useState<'home' | 'position' | 'candidate'>('home')
   const [selectedPosition, setSelectedPosition] = useState<Position | null>(null)
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null)
   const [activeTab, setActiveTab] = useState<'overview' | 'my-ratings' | 'leaderboard'>('overview')
@@ -328,33 +326,6 @@ const ElectionsPage: React.FC = () => {
       }))
     
     return sortedCandidates
-  }
-
-  // Confetti celebration for winners
-  const celebrateWinner = (candidate: Candidate, position: Position) => {
-    // Trigger confetti animation
-    confetti({
-      particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 },
-      colors: ['#FFD700', '#FFA500', '#FF6347', '#32CD32', '#1E90FF']
-    })
-
-    // Position-specific celebration message
-    const positionTitles: { [key: string]: string } = {
-      'president': 'PPMK President',
-      'co-president': 'PPMK Co-President', 
-      'exco-academic': 'PPMK Academic Director',
-      'exco-housing': 'PPMK Housing Director',
-      'exco-welfare': 'PPMK Welfare Director'
-    }
-
-    const title = positionTitles[position.id] || position.title
-    
-    // Show celebration alert
-    setTimeout(() => {
-      alert(`🎉 Congratulations to our ${title}: ${candidate.fullName}! 🎉\n\nThank you for your leadership and dedication to the Malaysian student community in Korea!`)
-    }, 500)
   }
 
   const skillLabels = {
@@ -692,20 +663,7 @@ const ElectionsPage: React.FC = () => {
                       const rankBadge = getRankBadge(candidate.rank)
                       
                       return (
-                        <div 
-                          key={candidate.id} 
-                          className="flex items-center space-x-4 p-4 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors cursor-pointer"
-                          onClick={() => {
-                            setSelectedCandidate(candidate)
-                            setSelectedPosition(position)
-                            setCurrentView('candidate-profile')
-                            
-                            // Celebrate if it's the winner (rank 1)
-                            if (candidate.rank === 1) {
-                              celebrateWinner(candidate, position)
-                            }
-                          }}
-                        >
+                        <div key={candidate.id} className="flex items-center space-x-4 p-4 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors">
                           {/* Rank Badge */}
                           <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${rankBadge.bg} ${rankBadge.text}`}>
                             {rankBadge.emoji}
@@ -899,12 +857,11 @@ const ElectionsPage: React.FC = () => {
                       onClick={(e) => {
                         e.stopPropagation()
                         setSelectedCandidate(candidate)
-                        setCurrentView('candidate-profile')
+                        setCurrentView('candidate')
                       }}
-                      className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
+                      className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                     >
-                      <Eye className="w-4 h-4" />
-                      <span>View Full Profile</span>
+                      View Full Profile
                     </button>
                     
                     {isRated ? (
@@ -917,12 +874,11 @@ const ElectionsPage: React.FC = () => {
                         onClick={(e) => {
                           e.stopPropagation()
                           setSelectedCandidate(candidate)
-                          setCurrentView('candidate-rating')
+                          setCurrentView('candidate')
                         }}
-                        className="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center justify-center space-x-2"
+                        className="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
                       >
-                        <Star className="w-4 h-4" />
-                        <span>Rate Now</span>
+                        Rate Now
                       </button>
                     )}
                   </div>
@@ -935,9 +891,10 @@ const ElectionsPage: React.FC = () => {
     )
   }
 
-  const renderCandidateProfile = () => {
+  const renderCandidate = () => {
     if (!selectedCandidate) return null
 
+    const userRating = userRatings.find(r => r.candidateId === selectedCandidate.id)
     const candidateComments = comments.filter(c => c.candidateId === selectedCandidate.id)
 
     return (
@@ -1092,6 +1049,47 @@ const ElectionsPage: React.FC = () => {
             </div>
           </div>
 
+          {/* Rating Section */}
+          {!userRating && (
+            <div className="mb-8">
+              <h3 className="text-xl font-bold text-white mb-4">Rate This Candidate</h3>
+              <div className="bg-gray-700 rounded-lg p-6">
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-6">
+                  {Object.entries(skillLabels).map(([skill, label]) => (
+                    <div key={skill} className="text-center">
+                      <p className="text-gray-300 mb-2">{label}</p>
+                      {renderStarRating(
+                        currentRating[skill as keyof Rating],
+                        (value) => handleRatingChange(skill as keyof Rating, value)
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-gray-300 mb-2">Public Comment (Optional)</label>
+                  <textarea
+                    value={currentComment}
+                    onChange={(e) => setCurrentComment(e.target.value)}
+                    placeholder="Share your thoughts about this candidate..."
+                    className="w-full px-4 py-3 bg-gray-600 border border-gray-500 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    rows={3}
+                  />
+                  <p className="text-gray-400 text-sm mt-1">Your comment is public. Be respectful.</p>
+                </div>
+
+                <button
+                  onClick={submitRating}
+                  disabled={!isRatingComplete()}
+                  className="flex items-center space-x-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Send className="w-5 h-5" />
+                  <span>Submit Rating</span>
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Comments Section */}
           {candidateComments.length > 0 && (
             <div>
@@ -1118,112 +1116,6 @@ const ElectionsPage: React.FC = () => {
     )
   }
 
-  const renderCandidateRating = () => {
-    if (!selectedCandidate) return null
-
-    return (
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center space-x-4 mb-8">
-          <button
-            onClick={() => {
-              setCurrentView('position')
-              setSelectedCandidate(null)
-            }}
-            className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <span>Back to {selectedPosition?.title}</span>
-          </button>
-        </div>
-
-        <div className="bg-gray-800 rounded-xl border border-gray-700 p-8">
-          {/* Candidate Header */}
-          <div className="flex items-start space-x-6 mb-8">
-            <img
-              src={selectedCandidate.photo}
-              alt={selectedCandidate.fullName}
-              className="w-24 h-24 rounded-full object-cover"
-            />
-            
-            <div className="flex-1">
-              <h1 className="text-2xl font-bold text-white mb-2">{selectedCandidate.fullName}</h1>
-              <div className="flex items-center space-x-4 text-gray-400 mb-4">
-                <div className="flex items-center space-x-2">
-                  <Calendar className="w-4 h-4" />
-                  <span>{selectedCandidate.year}</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <GraduationCap className="w-4 h-4" />
-                  <span>{selectedCandidate.major}</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <User className="w-4 h-4" />
-                  <span>{selectedCandidate.university}</span>
-                </div>
-              </div>
-              
-              <div className="mb-4">
-                <p className="text-purple-400 font-semibold italic">"{selectedCandidate.slogan}"</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Rating Section */}
-          <div className="mb-8">
-            <h3 className="text-xl font-bold text-white mb-6 flex items-center space-x-2">
-              <Star className="w-6 h-6 text-yellow-400" />
-              <span>Rate This Candidate</span>
-            </h3>
-            <div className="bg-gray-700 rounded-lg p-6">
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-6">
-                {Object.entries(skillLabels).map(([skill, label]) => (
-                  <div key={skill} className="text-center">
-                    <p className="text-gray-300 mb-3 font-medium">{label}</p>
-                    {renderStarRating(
-                      currentRating[skill as keyof Rating],
-                      (value) => handleRatingChange(skill as keyof Rating, value)
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              <div className="mb-6">
-                <label className="block text-gray-300 mb-3 font-medium">Public Comment (Optional)</label>
-                <textarea
-                  value={currentComment}
-                  onChange={(e) => setCurrentComment(e.target.value)}
-                  placeholder="Share your thoughts about this candidate..."
-                  className="w-full px-4 py-3 bg-gray-600 border border-gray-500 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  rows={4}
-                />
-                <p className="text-gray-400 text-sm mt-2">Your comment will be public. Please be respectful and constructive.</p>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="text-sm text-gray-400">
-                  {isRatingComplete() ? (
-                    <span className="text-green-400">✓ All ratings completed</span>
-                  ) : (
-                    <span>Please rate all categories to submit</span>
-                  )}
-                </div>
-                
-                <button
-                  onClick={submitRating}
-                  disabled={!isRatingComplete()}
-                  className="flex items-center space-x-2 px-8 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
-                >
-                  <Send className="w-5 h-5" />
-                  <span>Submit Rating</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="flex min-h-screen bg-gray-900">
       <Sidebar />
@@ -1231,8 +1123,7 @@ const ElectionsPage: React.FC = () => {
       <div className="flex-1 p-8">
         {currentView === 'home' && renderHome()}
         {currentView === 'position' && renderPosition()}
-        {currentView === 'candidate-profile' && renderCandidateProfile()}
-        {currentView === 'candidate-rating' && renderCandidateRating()}
+        {currentView === 'candidate' && renderCandidate()}
       </div>
     </div>
   )

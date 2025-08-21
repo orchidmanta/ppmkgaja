@@ -8,7 +8,7 @@ import DashboardPage from './pages/DashboardPage'
 import EventsPage from './pages/EventsPage'
 import ForumPage from './pages/ForumPage'
 import BambooForestPage from './pages/BambooForestPage'
-import ElectionsPage from './pages/ElectionsPage'
+import NewElectionsPage from './pages/NewElectionsPage'
 import QAPage from './pages/QAPage'
 import ProfilePage from './pages/ProfilePage'
 import './index.css'
@@ -62,7 +62,7 @@ function App() {
             } />
             <Route path="/elections" element={
               <ProtectedRoute>
-                <ElectionsPage />
+                <NewElectionsPage />
               </ProtectedRoute>
             } />
             <Route path="/qa" element={
